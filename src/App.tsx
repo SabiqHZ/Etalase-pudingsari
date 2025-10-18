@@ -4,75 +4,9 @@ import { ProductCard, Product } from "./components/ProductCard";
 import { AdminDialog } from "./components/AdminDialog";
 import { LogIn, LogOut } from "lucide-react";
 import { OrderFlow } from "./components/OrderFlow";
+import { Toast as ToastNotification } from "./components/Toast";
 
-const initialProducts: Product[] = [
-  {
-    id: "1",
-    name: "Premium Coffee Beans",
-    description: "Artisan roasted coffee beans",
-    price: 24000,
-    image: "/images/papa.jpg",
-    details:
-      "Single-origin coffee beans from Ethiopia. Rich, smooth flavor with notes of chocolate and berries. Perfect for pour-over brewing.",
-    category: "Beverages",
-  },
-  {
-    id: "2",
-    name: "Wireless Headphones",
-    description: "High-quality audio experience",
-    price: 149.99,
-    image:
-      "https://images.unsplash.com/photo-1633346703386-bf6f1e59ec6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWFkcGhvbmVzJTIwcHJvZHVjdHxlbnwxfHx8fDE3NjA3MTMwMDF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    details:
-      "Active noise cancellation, 30-hour battery life, premium comfort. Includes USB-C charging cable and carrying case.",
-    category: "Electronics",
-  },
-  {
-    id: "3",
-    name: "Smart Watch",
-    description: "Track your fitness and stay connected",
-    price: 299.99,
-    image:
-      "https://images.unsplash.com/photo-1698512475182-53ebc2530b98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRjaCUyMHByb2R1Y3R8ZW58MXx8fHwxNzYwNzEzMDAyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    details:
-      "AMOLED display, heart rate monitoring, GPS tracking, waterproof up to 50m. Compatible with iOS and Android.",
-    category: "Wearables",
-  },
-  {
-    id: "4",
-    name: "Running Sneakers",
-    description: "Lightweight performance footwear",
-    price: 129.99,
-    image:
-      "https://images.unsplash.com/photo-1656944227480-98180d2a5155?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzbmVha2VycyUyMHNob2VzfGVufDF8fHx8MTc2MDc0MjMzNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    details:
-      "Breathable mesh upper, responsive cushioning, durable rubber outsole. Designed for both casual wear and intense training.",
-    category: "Footwear",
-  },
-  {
-    id: "5",
-    name: "Travel Backpack",
-    description: "Durable and spacious backpack",
-    price: 79.99,
-    image:
-      "https://images.unsplash.com/photo-1583300418584-8332e32b710e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWNrcGFjayUyMHByb2R1Y3R8ZW58MXx8fHwxNzYwNjkyMDYyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    details:
-      "30L capacity, laptop compartment fits up to 15 inch, water-resistant material. Multiple pockets for organization.",
-    category: "Accessories",
-  },
-  {
-    id: "6",
-    name: "Polarized Sunglasses",
-    description: "UV protection and style",
-    price: 89.99,
-    image:
-      "https://images.unsplash.com/photo-1626104853886-8f06aed1bec5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdW5nbGFzc2VzJTIwcHJvZHVjdHxlbnwxfHx8fDE3NjA3MzU1MDN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    details:
-      "100% UV protection, polarized lenses reduce glare. Lightweight frame with spring hinges for comfort. Includes protective case.",
-    category: "Accessories",
-  },
-];
-
+const initialProducts: Product[] = [];
 export default function App() {
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem("products");
@@ -80,10 +14,10 @@ export default function App() {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        return initialProducts;
+        return [];
       }
     }
-    return initialProducts;
+    return [];
   });
   const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
@@ -113,18 +47,25 @@ export default function App() {
       id: Date.now().toString(),
     };
     setProducts([...products, newProduct]);
-    setCurrentPage(Math.ceil((products.length + 1) / productsPerPage)); // Jump ke halaman terakhir
+    setCurrentPage(Math.ceil((products.length + 1) / productsPerPage));
     setIsAdminDialogOpen(false);
+    setToast({
+      message: "Produk berhasil ditambahkan!",
+      type: "success",
+    });
   };
 
   const handleDeleteProduct = (id: string) => {
     const newProducts = products.filter((p) => p.id !== id);
     setProducts(newProducts);
-    // Jika halaman saat ini kosong setelah delete, kembali ke halaman sebelumnya
     const newTotalPages = Math.ceil(newProducts.length / productsPerPage);
     if (currentPage > newTotalPages && newTotalPages > 0) {
       setCurrentPage(newTotalPages);
     }
+    setToast({
+      message: "Produk berhasil dihapus!",
+      type: "success",
+    });
   };
 
   const handleEditProduct = (updatedProduct: Product) => {
@@ -133,6 +74,10 @@ export default function App() {
     );
     setEditingProduct(null);
     setIsAdminDialogOpen(false);
+    setToast({
+      message: "Produk berhasil diperbarui!",
+      type: "success",
+    });
   };
 
   const handleStartEdit = (product: Product) => {
@@ -147,6 +92,11 @@ export default function App() {
     indexOfLastProduct
   );
   const totalPages = Math.ceil(products.length / productsPerPage);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -311,6 +261,13 @@ export default function App() {
           </div>
         </div>
       </footer>
+      {toast && (
+        <ToastNotification
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
       {/* Admin Dialog */}
       <AdminDialog
